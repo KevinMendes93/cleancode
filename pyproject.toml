@@ -1,0 +1,54 @@
+[tool.black]
+line-length = 88
+target-version = ["py313"]
+exclude = '''
+/(
+  \.git
+| \.tox
+| \.venv
+| venv
+| __pycache__
+| build
+| dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+respect-gitignore = true
+fix = true
+
+[tool.ruff.lint]
+select = [
+  "E",  # pycodestyle errors
+  "F",  # pyflakes
+  "I",  # isort (import sorting)
+  "B",  # flake8-bugbear
+  "UP", # pyupgrade
+  "C4", # flake8-comprehensions
+  "SIM",# flake8-simplify
+  "W"   # pycodestyle warnings
+]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.format]
+docstring-code-format = true
+skip-magic-trailing-comma = false
+
+[tool.pyright]
+pythonVersion = "3.13"
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-q"
+pythonpath = ["."]
+
+[build-system]
+requires = []
+build-backend = "setuptools.build_meta"
