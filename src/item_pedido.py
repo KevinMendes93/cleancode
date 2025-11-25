@@ -6,10 +6,7 @@ class QuantidadeInvalidaError(Exception):
 class ItemPedido:
     def __init__(self, opcao_menu: Cardapio, quantidade: int, observacao: str):
 
-        if quantidade < 0:
-            raise QuantidadeInvalidaError("Quantidade não pode ser negativa")
-        if not isinstance(quantidade, int):
-            raise QuantidadeInvalidaError("Quantidade deve ser um número inteiro")
+        self.verificar_quantidade_invalida(quantidade)
         
         self.opcao_menu = opcao_menu
         self._quantidade = quantidade
@@ -21,12 +18,16 @@ class ItemPedido:
     
     @quantidade.setter
     def quantidade(self, valor: int):
-        if valor < 0:
-            raise QuantidadeInvalidaError("Quantidade não pode ser negativa")
-        if not isinstance(valor, int):
-            raise QuantidadeInvalidaError("Quantidade deve ser um número inteiro")
+        self.verificar_quantidade_invalida(valor)
         self._quantidade = valor
     
     @property
     def valor_total(self) -> float:
         return self.opcao_menu.valor * self._quantidade
+
+
+    def verificar_quantidade_invalida(self, quantidade: int):
+        if quantidade < 0:
+            raise QuantidadeInvalidaError("Quantidade não pode ser negativa")
+        if not isinstance(quantidade, int):
+            raise QuantidadeInvalidaError("Quantidade deve ser um número inteiro")
