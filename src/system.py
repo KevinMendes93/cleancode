@@ -6,7 +6,6 @@ from src.pedido import Pedido, StatusPedido
 
 
 class System:
-    
     def __init__(self):
         self.clientes: List[Cliente] = []
         self.cardapio: List[Cardapio] = []
@@ -22,18 +21,19 @@ class System:
     def add_pedido(self, pedido: Pedido):
         self.pedidos_abertos.append(pedido)
     
-    def remove_cliente_por_telefone(self, telefone: str):
-        self.clientes = [cliente for cliente in self.clientes if cliente.telefone != telefone]
+    def remove_cliente_por_telefone(self, telefone: str) -> bool:
+        tamanho_original = len(self.clientes)
+        self.clientes = [c for c in self.clientes if c.telefone != telefone]
+        return len(self.clientes) < tamanho_original
     
     def search_cliente_por_nome(self, nome: str) -> Iterator[Cliente]:
         nome_lower = nome.lower()
-        return (cliente for cliente in self.clientes if nome_lower in cliente.nome.lower())
+        return (c for c in self.clientes if nome_lower in c.nome.lower())
     
     def search_cliente_por_telefone(self, telefone: str) -> Iterator[Cliente]:
-        return (cliente for cliente in self.clientes if telefone in cliente.telefone)
+        return (c for c in self.clientes if telefone in c.telefone)
     
     def processar_proximo_pedido(self) -> Optional[Pedido]:
-
         if not self.pedidos_abertos:
             return None
         
@@ -48,21 +48,18 @@ class System:
         return "\n".join(item.descricao for item in self.cardapio)
     
     def avancar_status_primeiro_pedido(self) -> Optional[StatusPedido]:
-
         if not self.pedidos_abertos:
             return None
         
-        pedido = self.pedidos_abertos[0]
+        pedido = self._obter_primeiro_pedido()
         pedido.avancar_status()
         
-        if pedido.status == StatusPedido.ENTREGUE:
-            self.pedidos_abertos.popleft()
-            self.pedidos_fechados.append(pedido)
+        if self._pedido_foi_entregue(pedido):
+            self._mover_pedido_para_fechados()
         
         return pedido.status
     
     def cancelar_primeiro_pedido(self, motivo: str) -> bool:
-
         if not self.pedidos_abertos:
             return False
         
@@ -72,13 +69,21 @@ class System:
         return True
     
     def definir_forma_pagamento_primeiro_pedido(self, forma: str) -> Optional[str]:
-
         if not self.pedidos_abertos:
             return None
         
-        pedido = self.pedidos_abertos[0]
+        pedido = self._obter_primeiro_pedido()
         return pedido.definir_forma_pagamento(forma)
     
     def listar_pedidos_abertos(self) -> List[Tuple[Pedido, StatusPedido]]:
-
         return [(pedido, pedido.status) for pedido in self.pedidos_abertos]
+    
+    def _obter_primeiro_pedido(self) -> Pedido:
+        return self.pedidos_abertos[0]
+    
+    def _pedido_foi_entregue(self, pedido: Pedido) -> bool:
+        return pedido.status == StatusPedido.ENTREGUE
+    
+    def _mover_pedido_para_fechados(self):
+        pedido = self.pedidos_abertos.popleft()
+        self.pedidos_fechados.append(pedido)
